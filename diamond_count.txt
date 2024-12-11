@@ -1,0 +1,7 @@
+
+Name: llb
+Diamonds: 1000
+
+Name: alice
+Diamonds: 1000
+
