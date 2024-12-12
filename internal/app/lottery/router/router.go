@@ -9,6 +9,6 @@ func SetLotteryRouter(engin *gin.RouterGroup) {
 
 	lottery := engin.Group("v1")
 	{
-		lottery.POST("/lottery", controller.Start_lottery)
+		lottery.POST("/lottery", controller.Lottery)
 	}
 }

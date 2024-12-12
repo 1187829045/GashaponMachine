@@ -2,12 +2,13 @@ package main
 
 import (
 	"GaMachine/cmd"
-	"GaMachine/initialization"
+	"GaMachine/initialization/giftInit"
+	"GaMachine/initialization/hystrixInit"
 )
 
 func init() {
-
-	initialization.InitPrize()
+	hystrixInit.Init()
+	giftInit.Init()
 }
 func main() {
 	cmd.Execute()

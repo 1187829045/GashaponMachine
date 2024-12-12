@@ -5,12 +5,13 @@ import (
 	"GaMachine/internal/common"
 	"GaMachine/prize"
 	"fmt"
+	"github.com/afex/hystrix-go/hystrix"
 	"github.com/gin-gonic/gin"
 	"math/rand"
 	"time"
 )
 
-func Start_lottery(c *gin.Context) {
+func Lottery(c *gin.Context) {
 	// 生成奖品列表
 	var prizes []string
 	cnt := form.StartCnt{}
@@ -51,24 +52,7 @@ func Start_lottery(c *gin.Context) {
 	}
 	fmt.Println("开始抽奖......")
 
-	for i := 1; i <= cnt.Start_cnt; i++ {
-		if i%60 == 0 { // 每60次必得一个超级大奖
-			prizes = append(prizes, prize.SuperPrize)
-		} else {
-			// 初始化随机数生成器的种子，一般使用当前时间的纳秒时间戳
-			rand.Seed(time.Now().UnixNano())
-			// 生成一个在 [0, 100) 区间内的整数随机数
-			randomInt := rand.Intn(100)
-			index := randomInt % len(prize.Prize_pool)
-			prizes = append(prizes, prize.Prize_pool[index])
-			common.RemoveIndexPrize(index)
-			fmt.Println("当前奖品池:", prize.Prize_pool)
-		}
-
-		if i%10 == 0 && i != 0 {
-			common.Reinitialization()
-		}
-	}
+	prizes = Start_lottery(cnt.Start_cnt, prizes)
 	diamond_count -= cnt.Start_cnt * 5
 
 	err = common.ModifyDiamondCount(common.BrickworkFile, cnt.Username, diamond_count)
@@ -85,8 +69,43 @@ func Start_lottery(c *gin.Context) {
 			"error": "写入奖品失败: " + err.Error(),
 		})
 	}
+
 	fmt.Println("获得的奖品:%d", prizes)
+
 	c.JSON(200, gin.H{
 		"prize": "抽奖完成",
 	})
+}
+func fallback(err error) error {
+	fmt.Println("进入降级逻辑，原因:", err)
+	return fmt.Errorf("获取用户信息失败，已触发降级逻辑")
+}
+
+func Start_lottery(lottery_cnt int, prizes []string) []string {
+	hystrix.Do("lottery", func() error {
+		for i := 1; i <= lottery_cnt; i++ {
+			fmt.Println(prizes)
+			if i%60 == 0 { // 每60次必得一个超级大奖
+				prizes = append(prizes, prize.SuperPrize)
+			} else {
+				// 初始化随机数生成器的种子，一般使用当前时间的纳秒时间戳
+				rand.Seed(time.Now().UnixNano())
+				// 生成一个在 [0, 100) 区间内的整数随机数
+				randomInt := rand.Intn(100)
+				index := randomInt % len(prize.Prize_pool)
+				prizes = append(prizes, prize.Prize_pool[index])
+				common.RemoveIndexPrize(index)
+				//fmt.Println("当前奖品池:", prize.Prize_pool)
+			}
+
+			if i%10 == 0 && i != 0 {
+				common.Reinitialization()
+			}
+
+		}
+		return nil
+	}, func(err error) error {
+		return fallback(err)
+	})
+	return prizes
 }

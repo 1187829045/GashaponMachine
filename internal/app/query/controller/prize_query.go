@@ -2,14 +2,13 @@ package controller
 
 import (
 	"GaMachine/internal/common"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
 func QueryPrize(c *gin.Context) {
 	username := c.GetHeader("username")
 
-	fmt.Println(username)
+	//fmt.Println(username)
 
 	if isAdd, _ := common.CheckNameInFile(common.NameFile, username); !isAdd {
 		c.JSON(400, gin.H{

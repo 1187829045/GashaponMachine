@@ -1,3 +1,3 @@
 Name: chj
-Diamonds: 950
+Diamonds: 600
 
