@@ -1,14 +1,15 @@
 package main
 
 import (
-	"GaMachine/api"
-	"github.com/gin-gonic/gin"
+	"GaMachine/cmd"
+	"GaMachine/initialization"
 )
 
+func init() {
+
+	initialization.InitPrize()
+}
 func main() {
-	r := gin.Default()
+	cmd.Execute()
 
-	r.POST("/login", api.Login)
-
-	r.Run(":8080")
 }
