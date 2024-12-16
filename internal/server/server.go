@@ -4,6 +4,7 @@ import (
 	login_router "GaMachine/internal/app/Login/router"
 	lottery_router "GaMachine/internal/app/lottery/router"
 	query_router "GaMachine/internal/app/query/router"
+	register_router "GaMachine/internal/app/register/router"
 	"fmt"
 	"net/http"
 	"time"
@@ -37,6 +38,7 @@ func NewHTTPRouter() *gin.Engine {
 	// router group.
 	app := engine.Group("/gash")
 	{
+		register_router.SetRegisterRouter(app)
 		login_router.SetLoginRouter(app)
 		lottery_router.SetLotteryRouter(app)
 		query_router.SetQueryRouter(app)

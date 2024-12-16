@@ -1,29 +1,34 @@
 package controller
 
 import (
-	"GaMachine/internal/common"
+	"GaMachine/global"
+	"GaMachine/middlewares"
+	"GaMachine/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
 func QueryPrize(c *gin.Context) {
-	username := c.GetHeader("username")
 
-	//fmt.Println(username)
+	claims, _ := c.Get("claims")                      // 从上下文中获取 "claims" 信息
+	currentUser := claims.(*middlewares.CustomClaims) // 将 "claims" 转换为自定义的用户声明类型
 
-	if isAdd, _ := common.CheckNameInFile(common.NameFile, username); !isAdd {
-		c.JSON(400, gin.H{
-			"error": "用户不存在",
+	Prize := model.Prize{
+		UserId: currentUser.ID,
+	}
+
+	result := global.DB.Find(&Prize)
+	if result.RowsAffected == 0 {
+		c.JSON(200, gin.H{
+			"message": "没有中奖信息",
 		})
 		return
 	}
-	prizes, err := common.ReadPrizes(common.GiftFile, username)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error": "读取奖品失败: " + err.Error(),
-		})
-		return
-	}
+	fmt.Println(Prize.Prizes)
+
 	c.JSON(200, gin.H{
-		"prize": prizes,
+		"name":  currentUser.NickName,
+		"prize": Prize.Prizes,
 	})
+
 }

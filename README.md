@@ -1,5 +1,5 @@
 # GashaponMachine
-用于练手的一个扭蛋机系统
+用于练手的一个扭蛋机系统，技术栈 gin 暂时存储在中间文件中，后续引入数据库进行存储
 
 ## 扭蛋机
 
@@ -16,3 +16,10 @@ POST   /gash/v1/login
 POST   /gash/v1/lottery
 
 GET    /gash/v1/query  
+
+
+### 即将实现
+
+对登录功能进行完善 ，密码加密和密码存储等功能
+
+引入token的鉴权机制，注册功能的实现
