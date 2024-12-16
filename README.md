@@ -11,15 +11,17 @@
 
 监听端口号 8080  
 
-POST   /gash/v1/login
+POST   http://127.0.0.1:8080/gash/v1/lottery
 
-POST   /gash/v1/lottery
+POST   http://127.0.0.1:8080/gash/v1/login
 
-GET    /gash/v1/query  
+POST   http://127.0.0.1:8080/gash/v1/register  
 
+GET    http://127.0.0.1:8080/gash/v1/query
+
+
+引入JWT的鉴权机制
 
 ### 即将实现
 
-对登录功能进行完善 ，密码加密和密码存储等功能
-
-引入token的鉴权机制，注册功能的实现
+对登录功能进行完善,引入数据库存储用户获奖，商品信息等 ，密码加密存储等功能
