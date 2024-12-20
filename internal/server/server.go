@@ -1,10 +1,10 @@
 package server
 
 import (
-	login_router "GaMachine/internal/app/Login/router"
-	lottery_router "GaMachine/internal/app/lottery/router"
+	lottery_router "GaMachine/internal/app/gachaSystem/router"
 	query_router "GaMachine/internal/app/query/router"
-	register_router "GaMachine/internal/app/register/router"
+	register_router "GaMachine/internal/app/user/register/router"
+	login_router "GaMachine/internal/app/user/router"
 	"fmt"
 	"net/http"
 	"time"
@@ -38,10 +38,8 @@ func NewHTTPRouter() *gin.Engine {
 	// router group.
 	app := engine.Group("/gash")
 	{
-		register_router.SetRegisterRouter(app)
-		login_router.SetLoginRouter(app)
+		login_router.SetUserRouter(app)
 		lottery_router.SetLotteryRouter(app)
-		query_router.SetQueryRouter(app)
 
 	}
 	return engine
