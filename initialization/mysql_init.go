@@ -26,7 +26,7 @@ func MysqlInit() {
 	)
 	var err error
 
-	global.DB, err = gorm.Open(mysql.Open("root:123456@tcp(116.62.145.236:3306)/gashapon?charset=utf8mb4&parseTime=True&loc=Local"), &gorm.Config{
+	global.DB, err = gorm.Open(mysql.Open("root:123456@tcp(116.62.145.236:3307)/gashapon?charset=utf8mb4&parseTime=True&loc=Local"), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
