@@ -2,8 +2,7 @@ package server
 
 import (
 	lottery_router "GaMachine/internal/app/gachaSystem/router"
-	query_router "GaMachine/internal/app/query/router"
-	register_router "GaMachine/internal/app/user/register/router"
+
 	login_router "GaMachine/internal/app/user/router"
 	"fmt"
 	"net/http"

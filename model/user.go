@@ -54,3 +54,11 @@ func DiamondCount(userId uint) (count int) {
 	}
 	return user.DiamondCount
 }
+
+func UpdateUser(userId uint, user User) (err error) {
+	result := global.DB.Model(&user).Where("id = ?", userId).Updates(user)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

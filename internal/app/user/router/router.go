@@ -8,7 +8,7 @@ import (
 func SetUserRouter(engin *gin.RouterGroup) {
 	api := engin.Group("v1")
 	{
-		api.POST("login", controller.Login)
+		api.POST("/login", controller.Login)
 		api.POST("/register", controller.Register)
 	}
 

@@ -7,14 +7,15 @@ import (
 	"GaMachine/model"
 	"GaMachine/prize"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"math/rand"
+	"net/http"
 	"time"
 )
 
 type IGachaSystem interface {
-	lottery(c *gin.Context) error
+	Lottery(c *gin.Context, req dto.Lottry)
+	GetPrize(c *gin.Context)
 }
 
 type GachaSystem struct{}
@@ -23,42 +24,49 @@ func NewGachaSystem() IGachaSystem {
 	return &GachaSystem{}
 }
 
-func (ga *GachaSystem) lottery(c *gin.Context) error {
+func (ga *GachaSystem) Lottery(c *gin.Context, req dto.Lottry) {
 
-	lottry := dto.Lottry{}
-
-	// 绑定请求中的数据到 user 结构体
-	err := c.ShouldBindJSON(&lottry) //req dto service 内层
-	if err != nil {
-		// 创建一个自定义错误，并返回客户端
-		err = errors.New(consts.ErrInvalidParameter)
-		return err // 直接返回，防止继续执行后续代码
-	}
-
-	if _, err := model.GetUserById(lottry.UserId); err != nil {
-
+	if _, err := model.GetUserById(req.UserId); err != nil {
 		err = errors.New(consts.UserNotFound)
-		return err
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
 
 	//从文件中读取砖石数量
-	diamond_count := model.DiamondCount(lottry.UserId)
+	diamond_count := model.DiamondCount(req.UserId)
 
-	if diamond_count < lottry.PlayCnt*5 {
-		err = errors.New("砖石数量不足")
-		return err
+	if diamond_count < req.PlayCnt*5 {
+		err := errors.New("砖石数量不足")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
-	fmt.Println("开始抽奖......")
-	p := StartLottery(lottry.PlayCnt)
+	p := StartLottery(req.PlayCnt)
 
 	//添加到数据库
 
-	err = model.AddPrize(lottry.UserId, p)
+	err := model.AddPrize(req.UserId, p)
 	if err != nil {
-		return err
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": consts.ErrDB,
+		})
+		return
 	}
-	return nil
-
+	err = model.UpdateUser(req.UserId, model.User{
+		DiamondCount: diamond_count - req.PlayCnt*5,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": consts.ErrDB,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"prize": p,
+	})
 }
 
 func StartLottery(PlayCnt int) []string {
@@ -82,4 +90,24 @@ func StartLottery(PlayCnt int) []string {
 		}
 	}
 	return prizes
+}
+func (ga *GachaSystem) GetPrize(c *gin.Context) {
+	uId, exists := c.Get("userId")
+
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": consts.ErrNoLogin,
+		})
+		return
+	}
+	prizes, err := model.GetPrize(uId.(uint))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": consts.ErrDB,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"prize": prizes,
+	})
 }
